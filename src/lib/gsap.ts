@@ -2,10 +2,9 @@
 
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { SplitText } from "gsap/SplitText";
 
 if (typeof window !== "undefined") {
-  gsap.registerPlugin(ScrollTrigger, SplitText);
+  gsap.registerPlugin(ScrollTrigger);
   // Mobile URL-bar show/hide shouldn't trigger a full ScrollTrigger refresh.
   ScrollTrigger.config({ ignoreMobileResize: true });
 }
@@ -17,4 +16,4 @@ export function prefersReducedMotion(): boolean {
   );
 }
 
-export { gsap, ScrollTrigger, SplitText };
+export { gsap, ScrollTrigger };

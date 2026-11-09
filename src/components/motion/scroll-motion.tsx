@@ -1,7 +1,7 @@
 "use client";
 
 import { useLayoutEffect } from "react";
-import { gsap, prefersReducedMotion, ScrollTrigger, SplitText } from "@/lib/gsap";
+import { gsap, prefersReducedMotion, ScrollTrigger } from "@/lib/gsap";
 
 const OFFSETS: Record<string, gsap.TweenVars> = {
   up: { y: 48 },
@@ -76,16 +76,19 @@ export default function ScrollMotion() {
       });
 
       gsap.utils.toArray<HTMLElement>("[data-split]", scope).forEach((el) => {
-        const split = SplitText.create(el, { type: "words", mask: "words" });
-        gsap.set(el, { autoAlpha: 1 });
-        gsap.from(split.words, {
-          yPercent: 115,
-          duration: 1.15,
-          ease: "expo.out",
-          stagger: 0.06,
-          delay: Number(el.dataset.revealDelay || 0),
-          scrollTrigger: trigger(el, "top 92%"),
-        });
+        gsap.fromTo(
+          el,
+          { autoAlpha: 0, y: 28 },
+          {
+            autoAlpha: 1,
+            y: 0,
+            duration: 0.9,
+            ease: "expo.out",
+            delay: Number(el.dataset.revealDelay || 0),
+            scrollTrigger: trigger(el, "top 92%"),
+            clearProps: "transform",
+          },
+        );
       });
 
       gsap.utils.toArray<HTMLElement>("[data-parallax]", scope).forEach((el) => {
