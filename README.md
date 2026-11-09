@@ -1,36 +1,52 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Halmessso — Everyday goods, well made
 
-## Getting Started
+A clean, demo e-commerce storefront built with Next.js 16 (App Router, Turbopack), React 19, TypeScript and Tailwind CSS v4. No external image hosts, no mock APIs — everything is local and self-contained.
 
-First, run the development server:
+## Run it
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm run dev     # http://localhost:3000
+npm run build   # production build
+npm run lint
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Screens
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+| Route | Screen |
+| --- | --- |
+| `/` | Home — hero, featured products, categories, value props, testimonial |
+| `/products` | Catalog — category filter tabs + sort + product grid |
+| `/products/[slug]` | Product detail — gallery, features, qty + add to cart, related items |
+| `/cart` | Cart page — line items, promo code (`HALMESSO10`, 10% off), totals |
+| `/checkout` | Checkout — contact, shipping, payment (demo), order confirmation |
+| `/login`, `/signup` | Demo auth (stored in localStorage) |
+| `/account` | Profile card + last placed order |
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Cart drawer slides in from the header with a free-shipping progress bar.
 
-## Learn More
+## Clean architecture
 
-To learn more about Next.js, take a look at the following resources:
+Dependencies point inward — UI never imports the data layer directly:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```
+src/
+  domain/        entities.ts, product-repository.ts   # types + repository interface (no framework imports)
+  data/          catalog.ts, static-product-repository.ts  # static catalog adapter
+  application/   catalog.ts, cart.ts                       # use-cases: list/get products, cart math, totals
+  lib/           local-store.ts, cart.tsx, auth.tsx, format.ts  # client state (useSyncExternalStore + localStorage)
+  components/    header, footer, product-card, cart-drawer, ...   # presentation
+  app/           routes (server components + small client islands)
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- **domain** — `Product`, `CartLine`, `ProductRepository` interface. Zero dependencies.
+- **data** — `StaticProductRepository` implements the interface from an in-memory catalog. Swap it for an API/DB adapter without touching UI.
+- **application** — single entry points (`listProducts`, `getProductBySlug`, `computeTotals`, `getDetailedCartLines`) that the UI consumes.
+- **lib** — React context for cart/session, backed by a shared `useSyncExternalStore` localStorage helper (SSR-safe, no hydration mismatch).
+- **presentation** — server components by default; client islands only where interactivity is needed.
 
-## Deploy on Vercel
+## Demo notes
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Payments are not processed — any card details work on `/checkout`.
+- Promo code `HALMESSO10` applies 10% off; free shipping over $75.
+- Cart and demo session persist in `localStorage`.
