@@ -1,8 +1,8 @@
 import type { CartLine, Product } from "@/domain/entities";
 import { listProducts } from "./catalog";
 
-export const FREE_SHIPPING_THRESHOLD = 75;
-export const SHIPPING_FLAT_RATE = 6.9;
+export const FREE_SHIPPING_THRESHOLD = 3750;
+export const SHIPPING_FLAT_RATE = 345;
 export const PROMO_CODES: Record<string, number> = { HALMESSO10: 0.1 };
 
 export type DetailedCartLine = {
@@ -39,7 +39,7 @@ export function computeTotals(
   promoCode?: string | null,
 ): OrderTotals {
   const rate = promoCode ? (PROMO_CODES[promoCode.toUpperCase()] ?? 0) : 0;
-  const discount = subtotal * rate;
+  const discount = Math.round(subtotal * rate);
   const shipping = subtotal === 0 || subtotal >= FREE_SHIPPING_THRESHOLD
     ? 0
     : SHIPPING_FLAT_RATE;

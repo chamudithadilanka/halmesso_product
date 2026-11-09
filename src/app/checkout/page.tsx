@@ -121,6 +121,7 @@ export default function CheckoutPage() {
               <input required placeholder="ZIP / Postal code" aria-label="ZIP or postal code" className={inputClass} />
               <select required defaultValue="" aria-label="Country" className={`${inputClass} text-zinc-500`}>
                 <option value="" disabled>Country</option>
+                <option>Sri Lanka</option>
                 <option>United States</option>
                 <option>Canada</option>
                 <option>United Kingdom</option>

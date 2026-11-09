@@ -1,4 +1,6 @@
 import type { Product } from "@/domain/entities";
+import garlicImage from "@/assets/garlic_flavor.jpeg";
+import masalaImage from "@/assets/masala_flavor.jpeg";
 
 export const CATALOG: Product[] = [
   {
@@ -8,7 +10,7 @@ export const CATALOG: Product[] = [
     tagline: "Nutrition in every spoon",
     description:
       "Our signature Healthy Sprat Seasoning Powder, hand-made from real sprats. A natural boost of protein, calcium and omega-3 for rice, soups, curries, kottu, noodles and porridge — made for every age group, with zero additives.",
-    price: 12,
+    price: 600,
     category: "pantry",
     rating: 4.9,
     reviewCount: 2400,
@@ -29,7 +31,7 @@ export const CATALOG: Product[] = [
     tagline: "A zesty kick in every sprinkle",
     description:
       "All the nourishment of our original sprat seasoning, now with a bold chilli & lime twist. Sun-dried sprats blended with red chilli flakes and natural lime zest — a flavourful boost for noodles, egg hoppers, stir-fries and grilled corn.",
-    price: 13,
+    price: 650,
     category: "pantry",
     rating: 4.8,
     reviewCount: 870,
@@ -41,6 +43,50 @@ export const CATALOG: Product[] = [
       "Bold yet balanced — not overpowering",
       "Perfect for noodles, stir-fries & egg hoppers",
       "Zero additives · 100% natural",
+    ],
+  },
+  {
+    id: "p-sprat-garlic",
+    slug: "halmesso-plus-garlic-sprat-seasoning",
+    name: "Halmesso+ Garlic Flavour Sprat Seasoning",
+    tagline: "Garlic goodness in every sprinkle",
+    description:
+      "Our natural sprat seasoning with a savoury garlic flavour. Made from Sri Lankan sprats, it brings a nourishing boost to rice, noodles, curries and family favourites.",
+    price: 650,
+    category: "pantry",
+    rating: 4.8,
+    reviewCount: 620,
+    palette: ["#f0dfc0", "#653c22"],
+    glyph: "GAR",
+    image: garlicImage,
+    features: [
+      "Made from Sri Lankan sprats",
+      "Savoury garlic flavour",
+      "Rich in calcium",
+      "No MSG or artificial flavours",
+      "100% natural · 50 g pack",
+    ],
+  },
+  {
+    id: "p-sprat-masala",
+    slug: "halmesso-plus-masala-sprat-seasoning",
+    name: "Halmesso+ Masala Flavour Sprat Seasoning",
+    tagline: "A warm masala lift for every meal",
+    description:
+      "Our natural sprat seasoning with a warming masala flavour. Made from Sri Lankan sprats, it adds a savoury boost to rice, noodles, curries and family favourites.",
+    price: 650,
+    category: "pantry",
+    rating: 4.8,
+    reviewCount: 540,
+    palette: ["#f0dfc0", "#9b4d16"],
+    glyph: "MAS",
+    image: masalaImage,
+    features: [
+      "Made from Sri Lankan sprats",
+      "Warm masala flavour",
+      "Rich in calcium",
+      "No MSG or artificial flavours",
+      "100% natural · 50 g pack",
     ],
   },
 ];

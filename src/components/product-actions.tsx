@@ -1,8 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import { FREE_SHIPPING_THRESHOLD } from "@/application/cart";
 import type { Product } from "@/domain/entities";
 import { useCart } from "@/lib/cart";
+import { formatPrice } from "@/lib/format";
 
 export default function ProductActions({ product }: { product: Product }) {
   const { addToCart } = useCart();
@@ -40,7 +42,7 @@ export default function ProductActions({ product }: { product: Product }) {
       </div>
 
       <p className="text-[11px] text-zinc-400">
-        Free shipping over $75 · 30-day returns · 2-year warranty on goods built to last
+        Free shipping over {formatPrice(FREE_SHIPPING_THRESHOLD)} · 30-day returns · 2-year warranty on goods built to last
       </p>
     </div>
   );

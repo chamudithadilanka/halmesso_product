@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { listProducts } from "@/application/catalog";
-import ProductCard from "@/components/product-card";
+import ProductVisual from "@/components/product-visual";
 import Reveal from "@/components/reveal";
+import { formatPrice } from "@/lib/format";
 
 export const metadata: Metadata = {
   title: "Shop",
@@ -20,14 +21,14 @@ export default function ProductsPage() {
         <div className="mx-auto max-w-[1440px] px-4 sm:px-6 text-center">
           <Reveal>
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-fresh-leaf">
-              Halmesso+ · Two flavours
+              Halmesso+ · Four flavours
             </p>
             <h1 className="mt-3 font-[family-name:var(--font-fredoka)] text-4xl font-semibold leading-tight text-brand-warm-cream sm:text-5xl lg:text-6xl">
               Pick your flavour.
             </h1>
             <p className="mx-auto mt-4 max-w-md text-base leading-7 text-brand-warm-cream/70">
-              Real sprats, 100% natural, zero additives — now in two bold
-              varieties. Same goodness, your choice of taste.
+              Real sprats, 100% natural, zero additives — now in four bold
+              flavours. Same goodness, your choice of taste.
             </p>
           </Reveal>
         </div>
@@ -45,18 +46,12 @@ export default function ProductsPage() {
                   <Link
                     href={`/products/${product.slug}`}
                     aria-label={product.name}
-                    className="relative block aspect-[3/2] overflow-hidden"
-                    style={{
-                      background: `linear-gradient(135deg, ${product.palette[0]} 0%, ${product.palette[1]} 100%)`,
-                    }}
+                    className="relative block aspect-[4/3] overflow-hidden bg-brand-warm-cream"
                   >
-                    {/* Glyph */}
-                    <span
-                      className="absolute inset-0 flex items-center justify-center font-[family-name:var(--font-fredoka)] text-[7rem] font-semibold leading-none opacity-[0.14] select-none transition-transform duration-700 ease-out group-hover:scale-110"
-                      aria-hidden
-                    >
-                      {product.glyph}
-                    </span>
+                    <ProductVisual
+                      product={product}
+                      className="h-full w-full transition-transform duration-700 ease-out group-hover:scale-105"
+                    />
                     {/* Badge */}
                     <span className="absolute left-4 top-4 rounded-full bg-brand-dark-green/80 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-brand-warm-cream backdrop-blur-sm">
                       {index === 0 ? "Original" : "New Flavour"}
@@ -101,10 +96,10 @@ export default function ProductsPage() {
                     <div className="mt-auto flex flex-wrap items-center justify-between gap-4 border-t border-brand-golden-sand/40 pt-5">
                       <div>
                         <span className="text-2xl font-semibold text-brand-dark-green">
-                          Rs.{product.price * 50 /* demo LKR conversion */}
+                          {formatPrice(product.price)}
                         </span>
                         <span className="ml-1.5 text-sm text-brand-olive">
-                          / 100 g pack
+                          / 50 g pack
                         </span>
                       </div>
                       <div className="flex flex-wrap gap-3">

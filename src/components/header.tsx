@@ -22,7 +22,7 @@ function isNavActive(href: string, pathname: string) {
 }
 
 export default function Header() {
-  const { itemCount, hydrated, openCart } = useCart();
+  const { itemCount, hydrated, isOpen, openCart } = useCart();
   const [menuOpen, setMenuOpen] = useState(false);
   const pathname = usePathname();
 
@@ -74,15 +74,17 @@ export default function Header() {
               <button
                 type="button"
                 onClick={openCart}
-                aria-label="Open cart"
-                className="nav-action relative rounded-full p-2.5 text-brand-dark-green hover:bg-brand-golden-sand/25"
+                aria-label={`Open cart${itemCount > 0 ? `, ${itemCount} ${itemCount === 1 ? "item" : "items"}` : ""}`}
+                aria-haspopup="dialog"
+                aria-expanded={isOpen}
+                className="nav-action relative grid size-10 shrink-0 place-items-center rounded-full text-brand-dark-green hover:bg-brand-golden-sand/25"
               >
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" className="h-6 w-6">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-5 w-5">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V7.875a4.5 4.5 0 00-9 0V10.5m-3 0h15l-1.125 9.563a2.25 2.25 0 01-2.225 1.937H9.85a2.25 2.25 0 01-2.225-1.937L6.5 10.5z" />
                 </svg>
                 {hydrated && itemCount > 0 && (
-                  <span className="absolute -right-0.5 -top-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-brand-herbal text-[10px] font-bold text-brand-pure-white">
-                    {itemCount}
+                  <span aria-hidden="true" className="absolute -right-0.5 -top-0.5 flex h-5 min-w-5 items-center justify-center rounded-full border-2 border-brand-pure-white bg-brand-herbal px-1 text-[10px] font-bold leading-none text-brand-pure-white">
+                    {itemCount > 99 ? "99+" : itemCount}
                   </span>
                 )}
               </button>

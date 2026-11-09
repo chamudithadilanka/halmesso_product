@@ -2,6 +2,8 @@ import Link from "next/link";
 import Image from "next/image";
 import type { Metadata } from "next";
 import aboutImage from "@/assets/about.jpeg";
+import { getProductBySlug } from "@/application/catalog";
+import { formatPrice } from "@/lib/format";
 import RatingStars from "@/components/rating-stars";
 import Reveal from "@/components/reveal";
 
@@ -82,6 +84,8 @@ const FAQS = [
 ];
 
 export default function AboutPage() {
+  const product = getProductBySlug("halmesso-plus-sprat-seasoning-powder");
+
   return (
     <main>
       {/* Hero */}
@@ -275,7 +279,7 @@ export default function AboutPage() {
                   href="/products/halmesso-plus-sprat-seasoning-powder"
                   className="flex h-12 items-center justify-center rounded-full bg-brand-warm-cream px-8 text-sm font-bold uppercase tracking-wide text-brand-dark-green transition-colors hover:bg-brand-pure-white"
                 >
-                  Get yours — $12
+                  Get yours — {formatPrice(product?.price ?? 600)}
                 </Link>
               </Reveal>
             </div>

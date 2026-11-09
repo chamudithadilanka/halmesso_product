@@ -2,7 +2,12 @@ import type { Product } from "@/domain/entities";
 import type { ProductRepository } from "@/domain/product-repository";
 import { CATALOG } from "./catalog";
 
-const FEATURED_IDS = ["p-sprat-powder", "p-sprat-chilli"];
+const FEATURED_IDS = [
+  "p-sprat-powder",
+  "p-sprat-chilli",
+  "p-sprat-garlic",
+  "p-sprat-masala",
+];
 
 /** Static catalog implementation — swap for an API/DB adapter later. */
 export class StaticProductRepository implements ProductRepository {

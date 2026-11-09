@@ -8,6 +8,7 @@ import ProductVisual from "@/components/product-visual";
 import ProductCard from "@/components/product-card";
 import ProductActions from "@/components/product-actions";
 import RatingStars from "@/components/rating-stars";
+import { FREE_SHIPPING_THRESHOLD, SHIPPING_FLAT_RATE } from "@/application/cart";
 
 export function generateStaticParams() {
   return listProducts().map((p) => ({ slug: p.slug }));
@@ -97,7 +98,7 @@ export default async function ProductDetailPage({
           {/* Shipping & returns disclosure */}
           <div className="divide-y divide-black/[.06] rounded-2xl border border-black/[.06] text-sm dark:divide-white/[.08] dark:border-white/[.08]">
             {[
-              { title: "Shipping", body: "Free over $75. Flat $6.90 otherwise — dispatched within 24h, delivered in 2–4 business days." },
+              { title: "Shipping", body: `Free over ${formatPrice(FREE_SHIPPING_THRESHOLD)}. ${formatPrice(SHIPPING_FLAT_RATE)} otherwise — dispatched within 24h, delivered in 2–4 business days.` },
               { title: "Returns", body: "30 days, no questions asked. Free return label included in every order." },
               { title: "Guarantee", body: "Lifetime repair guarantee on canvas, leather goods and stitching." },
             ].map((row) => (

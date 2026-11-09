@@ -1,3 +1,5 @@
+import type { StaticImageData } from "next/image";
+
 export type Category = "apparel" | "home" | "accessories" | "pantry";
 
 export const CATEGORY_LABELS: Record<Category, string> = {
@@ -13,8 +15,9 @@ export type Product = {
   name: string;
   tagline: string;
   description: string;
-  /** Price in whole USD dollars for demo purposes. */
+  /** Price in whole Sri Lankan rupees. */
   price: number;
+  image?: StaticImageData;
   compareAtPrice?: number;
   category: Category;
   rating: number;
