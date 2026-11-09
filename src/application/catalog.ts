@@ -15,8 +15,8 @@ export function getProductBySlug(slug: string): Product | null {
   return repository.bySlug(slug);
 }
 
-export function getFeaturedProducts(limit = 4): Product[] {
-  return repository.featured(limit);
+export function getProductById(id: string): Product | null {
+  return repository.byId(id);
 }
 
 export function getRelatedProducts(slug: string, limit = 3): Product[] {

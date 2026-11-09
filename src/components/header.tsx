@@ -1,30 +1,24 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
 import { useCart } from "@/lib/cart";
+import { NAV_LINKS } from "@/lib/site";
 import CartDrawer from "./cart-drawer";
 import Logo from "./logo";
-import ScrollProgressLine from "./scroll-progress";
+import { BagIcon, CloseIcon, MenuIcon, UserIcon } from "./icons";
 
-const NAV = [
-  { href: "/", label: "Home" },
-  { href: "/about", label: "About" },
-  { href: "/products", label: "Products" },
-  { href: "/products/halmesso-plus-sprat-seasoning-powder", label: "Shop" },
-];
-
-function isNavActive(href: string, pathname: string) {
-  if (href === "/") return pathname === "/";
-  if (href === "/products") return pathname === href;
-  return pathname === href || pathname.startsWith(`${href}/`);
+function isActive(href: string, pathname: string) {
+  return href === "/" ? pathname === "/" : pathname === href || pathname.startsWith(`${href}/`);
 }
 
 export default function Header() {
   const { itemCount, hydrated, isOpen, openCart } = useCart();
-  const [menuOpen, setMenuOpen] = useState(false);
   const pathname = usePathname();
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const progressRef = useRef<HTMLDivElement>(null);
 
   // Close the mobile menu on navigation — adjust during render (no effect needed).
   const [prevPathname, setPrevPathname] = useState(pathname);
@@ -33,118 +27,137 @@ export default function Header() {
     setMenuOpen(false);
   }
 
+  // Scroll progress bar + "scrolled" shadow, written straight to the DOM.
+  useEffect(() => {
+    let raf = 0;
+    const update = () => {
+      raf = 0;
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      const p = max > 0 ? Math.min(1, Math.max(0, window.scrollY / max)) : 0;
+      progressRef.current?.style.setProperty("--progress", p.toFixed(4));
+      setScrolled(window.scrollY > 8);
+    };
+    const onScroll = () => {
+      if (!raf) raf = requestAnimationFrame(update);
+    };
+    update();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+    };
+  }, [pathname]);
+
+  // Mobile menu: Escape closes, page behind doesn't scroll.
+  useEffect(() => {
+    if (!menuOpen) return;
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setMenuOpen(false);
+    const close = () => window.matchMedia("(min-width: 768px)").matches && setMenuOpen(false);
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", onKey);
+    window.addEventListener("resize", close);
+    return () => {
+      document.body.style.overflow = "";
+      window.removeEventListener("keydown", onKey);
+      window.removeEventListener("resize", close);
+    };
+  }, [menuOpen]);
+
+  const cartLabel = `Open cart${hydrated && itemCount > 0 ? `, ${itemCount} ${itemCount === 1 ? "item" : "items"}` : ""}`;
+
   return (
     <>
-        <header className="sticky top-0 z-40 border-b border-brand-golden-sand/45 bg-brand-pure-white shadow-[0_1px_0_rgba(25,60,30,0.08)] relative">
-          <ScrollProgressLine />
-          <div className="mx-auto flex h-16 max-w-[1440px] items-center justify-between gap-4 px-2 sm:px-4">
-            {/* Logo */}
-            <Link href="/" className="flex items-center" aria-label="HALMASSO+ home">
-              <Logo variant="on-light" className="text-[1.6rem]" />
-            </Link>
+      <a href="#main" className="sr-only z-[70] rounded-full bg-cocoa-800 px-4 py-2 text-sm font-semibold text-cream-50 focus:not-sr-only focus:fixed focus:left-4 focus:top-3">
+        Skip to content
+      </a>
+      <header
+        className={`sticky top-0 z-40 border-b transition-[background-color,box-shadow,border-color] duration-300 ${
+          scrolled || menuOpen
+            ? "border-cocoa-800/10 bg-cream-50/90 shadow-[0_8px_30px_-12px_rgba(58,29,14,0.25)] backdrop-blur-md"
+            : "border-transparent bg-cream-100"
+        }`}
+      >
+        <div className="container-page flex h-16 items-center justify-between gap-4">
+          <Link href="/" aria-label="Haalmasso+ home" className="rounded-lg">
+            <Logo className="text-[1.6rem]" />
+          </Link>
 
-            {/* Nav */}
-            <nav className="hidden items-center gap-10 sm:flex" aria-label="Primary">
-              {NAV.map((item) => {
-                const active = isNavActive(item.href, pathname);
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    aria-current={active ? "page" : undefined}
-                    className={`primary-nav-link py-2 text-base font-semibold ${active ? "text-brand-dark-green" : "text-brand-olive hover:text-brand-dark-green"}`}
-                  >
-                    {item.label}
-                  </Link>
-                );
-              })}
-            </nav>
-
-            {/* Actions */}
-            <div className="flex items-center gap-1 sm:gap-2">
+          <nav aria-label="Primary" className="hidden items-center gap-8 md:flex">
+            {NAV_LINKS.map((item) => (
               <Link
-                href="/account"
-                aria-label="Account"
-                className="nav-action hidden rounded-full p-2.5 text-brand-dark-green hover:bg-brand-golden-sand/25 min-[400px]:block"
+                key={item.href}
+                href={item.href}
+                aria-current={isActive(item.href, pathname) ? "page" : undefined}
+                className="nav-link text-[15px] font-semibold text-cocoa-600 transition-colors hover:text-cocoa-900 aria-[current=page]:text-cocoa-900"
               >
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" className="h-6 w-6">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 7.5a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.5 20.25a8.25 8.25 0 0115 0" />
-                </svg>
+                {item.label}
               </Link>
-              <button
-                type="button"
-                onClick={openCart}
-                aria-label={`Open cart${itemCount > 0 ? `, ${itemCount} ${itemCount === 1 ? "item" : "items"}` : ""}`}
-                aria-haspopup="dialog"
-                aria-expanded={isOpen}
-                className="nav-action relative grid size-10 shrink-0 place-items-center rounded-full text-brand-dark-green hover:bg-brand-golden-sand/25"
-              >
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-5 w-5">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V7.875a4.5 4.5 0 00-9 0V10.5m-3 0h15l-1.125 9.563a2.25 2.25 0 01-2.225 1.937H9.85a2.25 2.25 0 01-2.225-1.937L6.5 10.5z" />
-                </svg>
-                {hydrated && itemCount > 0 && (
-                  <span aria-hidden="true" className="absolute -right-0.5 -top-0.5 flex h-5 min-w-5 items-center justify-center rounded-full border-2 border-brand-pure-white bg-brand-herbal px-1 text-[10px] font-bold leading-none text-brand-pure-white">
-                    {itemCount > 99 ? "99+" : itemCount}
-                  </span>
-                )}
-              </button>
+            ))}
+          </nav>
 
-              {/* Mobile menu toggle */}
-              <button
-                type="button"
-                onClick={() => setMenuOpen((v) => !v)}
-                aria-label={menuOpen ? "Close menu" : "Open menu"}
-                aria-expanded={menuOpen}
-                aria-controls="mobile-nav"
-                className="nav-action rounded-full p-2.5 text-brand-dark-green hover:bg-brand-golden-sand/25 sm:hidden"
-              >
-                {menuOpen ? (
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-6 w-6">
-                    <path strokeLinecap="round" d="M6 6l12 12M18 6L6 18" />
-                  </svg>
-                ) : (
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-6 w-6">
-                    <path strokeLinecap="round" d="M4 7h16M4 12h16M4 17h16" />
-                  </svg>
-                )}
-              </button>
-            </div>
-          </div>
-
-          {/* Mobile dropdown */}
-          {menuOpen && (
-            <div
-              id="mobile-nav"
-              className="mobile-nav-panel border-t border-brand-golden-sand/45 bg-brand-pure-white sm:hidden"
+          <div className="flex items-center gap-1">
+            <Link
+              href="/account"
+              aria-label="My account"
+              aria-current={pathname === "/account" ? "page" : undefined}
+              className="hidden size-11 place-items-center rounded-full text-cocoa-800 transition hover:bg-cocoa-800/5 sm:grid"
             >
-              <nav className="mx-auto flex max-w-[1440px] flex-col px-2 py-2 sm:px-4" aria-label="Mobile">
-                {NAV.map((item, index) => {
-                  const active = isNavActive(item.href, pathname);
-                  return (
-                    <Link
-                      key={item.href}
-                      href={item.href}
-                      aria-current={active ? "page" : undefined}
-                      className={`mobile-nav-item border-b border-brand-golden-sand/35 py-4 text-base font-semibold last:border-0 focus-visible:bg-brand-golden-sand/25 ${active ? "bg-brand-golden-sand/20 text-brand-dark-green" : "text-brand-olive"}`}
-                      style={{ animationDelay: `${index * 45}ms` }}
-                    >
-                      {item.label}
-                    </Link>
-                  );
-                })}
-                <Link
-                  href="/account"
-                  className="mobile-nav-item py-4 text-base font-semibold text-brand-olive min-[400px]:hidden"
-                  style={{ animationDelay: `${NAV.length * 45}ms` }}
-                >
-                  Account
-                </Link>
-              </nav>
-            </div>
-          )}
-        </header>
+              <UserIcon className="size-[22px]" />
+            </Link>
+            <button
+              type="button"
+              onClick={openCart}
+              aria-label={cartLabel}
+              aria-haspopup="dialog"
+              aria-expanded={isOpen}
+              className="relative grid size-11 place-items-center rounded-full text-cocoa-800 transition hover:bg-cocoa-800/5"
+            >
+              <BagIcon className="size-[22px]" />
+              {hydrated && itemCount > 0 && (
+                <span aria-hidden className="absolute right-0.5 top-0.5 flex h-5 min-w-5 items-center justify-center rounded-full border-2 border-cream-50 bg-spice-500 px-1 text-[10px] font-bold leading-none text-cream-50">
+                  {itemCount > 99 ? "99+" : itemCount}
+                </span>
+              )}
+            </button>
+            <button
+              type="button"
+              onClick={() => setMenuOpen((v) => !v)}
+              aria-label={menuOpen ? "Close menu" : "Open menu"}
+              aria-expanded={menuOpen}
+              aria-controls="mobile-nav"
+              className="grid size-11 place-items-center rounded-full text-cocoa-800 transition hover:bg-cocoa-800/5 md:hidden"
+            >
+              {menuOpen ? <CloseIcon className="size-6" /> : <MenuIcon className="size-6" />}
+            </button>
+          </div>
+        </div>
 
-        <CartDrawer />
-      </>
-      );
+        <div ref={progressRef} aria-hidden className="scroll-progress absolute inset-x-0 bottom-0 h-[2px]" />
+
+        {menuOpen && (
+          <div id="mobile-nav" className="panel-in absolute inset-x-0 top-full h-[calc(100dvh-4rem)] overflow-y-auto border-t border-cocoa-800/10 bg-cream-50 md:hidden">
+            <nav aria-label="Mobile" className="container-page flex flex-col py-4">
+              {[...NAV_LINKS, { href: "/account", label: "My account" }].map((item, i) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  aria-current={isActive(item.href, pathname) ? "page" : undefined}
+                  className="panel-in flex items-center justify-between border-b border-cocoa-800/10 py-4 font-display text-2xl font-semibold text-cocoa-700 aria-[current=page]:text-spice-500"
+                  style={{ animationDelay: `${60 + i * 50}ms` }}
+                >
+                  {item.label}
+                  <span aria-hidden className="text-lg text-cocoa-300">→</span>
+                </Link>
+              ))}
+              <p className="mt-8 font-script text-2xl text-cocoa-500">Small fish. Strong health.</p>
+            </nav>
+          </div>
+        )}
+      </header>
+
+      <CartDrawer />
+    </>
+  );
 }

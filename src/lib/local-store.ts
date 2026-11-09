@@ -5,52 +5,69 @@ import { useCallback, useSyncExternalStore } from "react";
 /**
  * Tiny localStorage-backed external store.
  * Uses useSyncExternalStore so server output ("") and the first client
- * render agree — React re-renders with the real value after hydration,
- * with no cascading setState-in-effect.
+ * render agree — React re-renders with the real value after hydration.
  */
 
 const EMPTY = "";
 const listeners = new Set<() => void>();
 const cache = new Map<string, string>();
 
+function onStorage(event: StorageEvent) {
+  // Another tab changed storage: drop our cached copy so we re-read it.
+  if (event.key === null) cache.clear();
+  else cache.delete(event.key);
+  for (const listener of listeners) listener();
+}
+
 function subscribe(onStoreChange: () => void) {
+  if (listeners.size === 0) window.addEventListener("storage", onStorage);
   listeners.add(onStoreChange);
-  window.addEventListener("storage", onStoreChange);
   return () => {
     listeners.delete(onStoreChange);
-    window.removeEventListener("storage", onStoreChange);
+    if (listeners.size === 0) window.removeEventListener("storage", onStorage);
   };
 }
 
 const subscribeNoop = () => () => {};
-const SERVER_SNAPSHOT = () => EMPTY;
+const serverSnapshot = () => EMPTY;
 
-export function writeStored(key: string, value: string | null) {
-  if (typeof window === "undefined") return;
-  if (value === null) {
-    window.localStorage.removeItem(key);
-    cache.set(key, EMPTY);
-  } else {
-    window.localStorage.setItem(key, value);
-    cache.set(key, value);
-  }
-  for (const listener of listeners) listener();
-}
-
-function readCached(key: string): string {
+/** Read the current value synchronously (always fresh, never a stale closure). */
+export function readStored(key: string): string {
+  if (typeof window === "undefined") return EMPTY;
   let cached = cache.get(key);
   if (cached === undefined) {
-    cached = window.localStorage.getItem(key) ?? EMPTY;
+    try {
+      cached = window.localStorage.getItem(key) ?? EMPTY;
+    } catch {
+      cached = EMPTY; // storage blocked (private mode / disabled cookies)
+    }
     cache.set(key, cached);
   }
   return cached;
 }
 
+export function writeStored(key: string, value: string | null) {
+  if (typeof window === "undefined") return;
+  try {
+    if (value === null) window.localStorage.removeItem(key);
+    else window.localStorage.setItem(key, value);
+  } catch {
+    // Quota exceeded or storage blocked — keep working in memory.
+  }
+  cache.set(key, value ?? EMPTY);
+  for (const listener of listeners) listener();
+}
+
 export function useStored(key: string): { value: string; hydrated: boolean } {
-  const getSnapshot = useCallback(() => readCached(key), [key]);
-  const value = useSyncExternalStore(subscribe, getSnapshot, SERVER_SNAPSHOT);
-  const hydrated = useSyncExternalStore(subscribeNoop, () => true, () => false);
+  const getSnapshot = useCallback(() => readStored(key), [key]);
+  const value = useSyncExternalStore(subscribe, getSnapshot, serverSnapshot);
+  const hydrated = useHydrated();
   return { value, hydrated };
+}
+
+/** False during SSR and the hydration render, true afterwards. */
+export function useHydrated(): boolean {
+  return useSyncExternalStore(subscribeNoop, () => true, () => false);
 }
 
 export function parseJson<T>(raw: string): T | null {

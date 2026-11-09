@@ -1,105 +1,58 @@
-"use client";
-
 import Link from "next/link";
-import { useState, type FormEvent } from "react";
+import { listProducts } from "@/application/catalog";
 import Logo from "./logo";
-
-const COLUMNS: { heading: string; links: { label: string; href: string }[] }[] = [
-  {
-    heading: "Shop",
-    links: [
-      { label: "All products", href: "/products" },
-      { label: "Halmesso+ Sprat", href: "/products/halmesso-plus-sprat-seasoning-powder" },
-      { label: "Pantry", href: "/products" },
-      { label: "Apparel", href: "/products" },
-      { label: "Home", href: "/products" },
-      { label: "Accessories", href: "/products" },
-    ],
-  },
-  {
-    heading: "Company",
-    links: [
-      { label: "About Halmesso+", href: "/about" },
-      { label: "Our story", href: "/about" },
-      { label: "Sustainability", href: "#" },
-      { label: "Careers", href: "#" },
-    ],
-  },
-  {
-    heading: "Support",
-    links: [
-      { label: "Shipping & returns", href: "#" },
-      { label: "Sizing guide", href: "#" },
-      { label: "Care instructions", href: "#" },
-      { label: "Contact us", href: "#" },
-    ],
-  },
-];
+import NewsletterForm from "./newsletter-form";
 
 export default function Footer() {
-  const [email, setEmail] = useState("");
-  const [subscribed, setSubscribed] = useState(false);
-
-  const onSubscribe = (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (!email.trim()) return;
-    setSubscribed(true);
-  };
+  const products = listProducts();
+  const columns = [
+    {
+      heading: "Shop",
+      links: [
+        { label: "All flavours", href: "/products" },
+        ...products.map((p) => ({ label: `${p.flavourName} flavour`, href: `/products/${p.slug}` })),
+      ],
+    },
+    {
+      heading: "Company",
+      links: [
+        { label: "Our story", href: "/about" },
+        { label: "Contact us", href: "/contact" },
+      ],
+    },
+    {
+      heading: "Help",
+      links: [
+        { label: "Delivery & returns", href: "/shipping" },
+        { label: "Privacy", href: "/privacy" },
+        { label: "My account", href: "/account" },
+      ],
+    },
+  ];
 
   return (
-    <footer className="border-t border-brand-golden-sand/35 bg-brand-warm-cream dark:border-brand-warm-cream/15 dark:bg-brand-dark-green">
-      <div className="mx-auto max-w-[1440px] px-2 py-14 sm:px-4">
-        <div className="grid gap-10 lg:grid-cols-12">
-          {/* Brand + newsletter */}
-          <div className="lg:col-span-4">
-            <Logo className="text-2xl" />
-            <p className="mt-2 max-w-xs text-sm leading-6 text-zinc-500 dark:text-zinc-400">
-              Considered everyday goods — built to last, fairly priced, and honest about what they are.
+    <footer className="relative overflow-hidden bg-cocoa-900 text-cream-100">
+      <div aria-hidden className="pointer-events-none absolute -right-24 -top-24 size-80 rounded-full bg-spice-500/20 blur-3xl" />
+      <div aria-hidden className="pointer-events-none absolute -bottom-32 -left-20 size-96 rounded-full bg-garlic-500/20 blur-3xl" />
+
+      <div className="container-page relative py-14 sm:py-16">
+        <div className="grid gap-12 lg:grid-cols-12">
+          <div className="lg:col-span-5">
+            <Logo tone="cream" className="text-3xl" />
+            <p className="mt-3 max-w-sm text-sm leading-6 text-cream-100/70">
+              Natural nutritional seasoning powder made from Sri Lankan sprats. Small fish, strong health — in every spoon.
             </p>
-            <form onSubmit={onSubscribe} className="mt-6 max-w-xs">
-              <label htmlFor="newsletter" className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
-                The Sunday Edit — weekly, no noise
-              </label>
-              {subscribed ? (
-                <p className="mt-2 text-sm font-medium text-emerald-600 dark:text-emerald-400">
-                  Welcome aboard — check your inbox ✓
-                </p>
-              ) : (
-                <div className="mt-2 flex overflow-hidden rounded-full border border-brand-golden-sand/60 focus-within:border-brand-herbal dark:border-brand-warm-cream/20">
-                  <input
-                    id="newsletter"
-                    type="email"
-                    required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="you@example.com"
-                    className="h-11 w-full bg-transparent px-4 text-sm outline-none placeholder:text-zinc-400"
-                  />
-                  <button
-                    type="submit"
-                    className="shrink-0 bg-brand-dark-green px-4 text-sm font-medium text-brand-pure-white transition-colors hover:bg-brand-olive"
-                  >
-                    Join
-                  </button>
-                </div>
-              )}
-            </form>
+            <NewsletterForm />
           </div>
 
-          {/* Link columns */}
-          <nav className="grid grid-cols-2 gap-8 sm:grid-cols-3 lg:col-span-8" aria-label="Footer">
-            {COLUMNS.map((col) => (
+          <nav aria-label="Footer" className="grid grid-cols-2 gap-8 sm:grid-cols-3 lg:col-span-7">
+            {columns.map((col) => (
               <div key={col.heading}>
-                <h3 className="text-xs font-semibold uppercase tracking-[0.14em] text-zinc-400">
-                  {col.heading}
-                </h3>
-                <ul className="mt-3 space-y-2">
+                <h2 className="text-xs font-semibold uppercase tracking-[0.16em] text-cream-100/50">{col.heading}</h2>
+                <ul className="mt-4 space-y-1">
                   {col.links.map((link) => (
-                    <li key={link.label}>
-                      <Link
-                        href={link.href}
-                        className="text-sm text-zinc-600 transition-colors hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
-                      >
+                    <li key={link.href}>
+                      <Link href={link.href} className="inline-block py-1.5 text-sm text-cream-100/85 transition-colors hover:text-gold">
                         {link.label}
                       </Link>
                     </li>
@@ -110,13 +63,9 @@ export default function Footer() {
           </nav>
         </div>
 
-        <div className="mt-12 flex flex-col items-center justify-between gap-3 border-t border-black/[.06] pt-6 text-xs text-zinc-500 dark:border-white/[.08] dark:text-zinc-500 sm:flex-row">
-          <p>© 2026 HALMASSO+ — Small Fish. Big Goodness.</p>
-          <div className="flex gap-6">
-            <a href="#" className="hover:text-zinc-800 dark:hover:text-zinc-200">Privacy</a>
-            <a href="#" className="hover:text-zinc-800 dark:hover:text-zinc-200">Terms</a>
-            <a href="#" className="hover:text-zinc-800 dark:hover:text-zinc-200">Accessibility</a>
-          </div>
+        <div className="mt-14 flex flex-col gap-3 border-t border-cream-100/10 pt-6 text-xs text-cream-100/50 sm:flex-row sm:items-center sm:justify-between">
+          <p>© 2026 Haalmasso+. Made in Sri Lanka.</p>
+          <p className="font-script text-lg text-cream-100/70">Small fish. Strong health.</p>
         </div>
       </div>
     </footer>

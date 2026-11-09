@@ -1,452 +1,207 @@
 @import "tailwindcss";
 
-:root {
-  --brand-dark-green: #193c1e;
-  --brand-olive: #5a5424;
-  --brand-herbal: #728235;
-  --brand-fresh-leaf: #a6a94f;
-  --brand-warm-cream: #faefe2;
-  --brand-golden-sand: #e0b989;
-  --brand-spice-brown: #c8a171;
-  --brand-pure-white: #ffffff;
-  --background: var(--brand-warm-cream);
-  --foreground: var(--brand-dark-green);
-  --accent: var(--brand-herbal);
-  --accent-strong: var(--brand-dark-green);
-  --kraft: var(--brand-golden-sand);
-}
+/* ─── Design tokens — taken from the Haalmasso+ packaging ──────────────── */
+@theme {
+  --color-cocoa-950: #2a140a;
+  --color-cocoa-900: #3a1d0e;
+  --color-cocoa-800: #4a2513;
+  --color-cocoa-700: #63331b;
+  --color-cocoa-600: #7a4527;
+  --color-cocoa-500: #8a5a3a;
+  --color-cocoa-300: #c49a78;
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-accent: var(--accent);
-  --color-accent-strong: var(--accent-strong);
-  --color-kraft: var(--kraft);
-  --color-brand-dark-green: var(--brand-dark-green);
-  --color-brand-olive: var(--brand-olive);
-  --color-brand-herbal: var(--brand-herbal);
-  --color-brand-fresh-leaf: var(--brand-fresh-leaf);
-  --color-brand-warm-cream: var(--brand-warm-cream);
-  --color-brand-golden-sand: var(--brand-golden-sand);
-  --color-brand-spice-brown: var(--brand-spice-brown);
-  --color-brand-pure-white: var(--brand-pure-white);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+  --color-cream-50: #fffaf2;
+  --color-cream-100: #fbf3e6;
+  --color-cream-200: #f4e5cc;
+  --color-kraft: #e6c99a;
+  --color-gold: #e7a83b;
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: var(--brand-dark-green);
-    --foreground: var(--brand-warm-cream);
-    --accent: var(--brand-fresh-leaf);
-    --accent-strong: var(--brand-herbal);
-    --kraft: var(--brand-olive);
+  --color-leaf-700: #2b6420;
+  --color-leaf-600: #367a29;
+  --color-leaf-500: #46943a;
+
+  --color-spice-700: #a84a12;
+  --color-spice-500: #d4661f;
+  --color-spice-100: #fbe3cf;
+  --color-garlic-700: #5e2c70;
+  --color-garlic-500: #7a3d8f;
+  --color-garlic-100: #efe0f3;
+  --color-plus: #e8531f;
+
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-fredoka), ui-rounded, system-ui, sans-serif;
+  --font-script: var(--font-caveat), cursive;
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+
+  --animate-marquee: marquee 38s linear infinite;
+  --animate-float: float 6s ease-in-out infinite;
+  --animate-gradient: gradient-shift 14s ease infinite;
+
+  @keyframes marquee {
+    from { transform: translate3d(0, 0, 0); }
+    to { transform: translate3d(-50%, 0, 0); }
   }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-12px) rotate(2deg); }
+  }
+
+  @keyframes gradient-shift {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+  }
+}
+
+/* Consistent page gutter used by every section. */
+@utility container-page {
+  margin-inline: auto;
+  width: 100%;
+  max-width: 80rem;
+  padding-inline: 1.25rem;
+
+  @media (width >= 40rem) {
+    padding-inline: 2rem;
+  }
+}
+
+/* ─── Base ──────────────────────────────────────────────────────────────── */
+:root {
+  /* The brand is cream-and-cocoa; a dark scheme was half-implemented and
+     made cards unreadable, so the site is intentionally light-only. */
+  color-scheme: light;
 }
 
 html {
   scroll-behavior: smooth;
+  -webkit-tap-highlight-color: transparent;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-}
-
-@keyframes hero-caret {
-
-  0%,
-  100% {
-    opacity: 0;
-  }
-
-  50% {
-    opacity: 1;
-  }
-}
-
-.hero-typewriter {
-  display: inline-grid;
-  grid-template-areas: "line";
-  vertical-align: bottom;
-}
-
-.hero-typewriter-measure,
-.hero-typewriter-visible {
-  grid-area: line;
-  white-space: nowrap;
-}
-
-.hero-typewriter-measure {
-  visibility: hidden;
-}
-
-.hero-typewriter-visible::after {
-  display: inline-block;
-  width: 0.065em;
-  height: 0.82em;
-  margin-left: 0.08em;
-  background: var(--brand-fresh-leaf);
-  content: "";
-  animation: hero-caret 800ms steps(2, end) infinite;
-  vertical-align: -0.08em;
-}
-
-@keyframes nav-panel-enter {
-  from {
-    opacity: 0;
-    transform: translateY(-0.5rem);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes nav-item-enter {
-  from {
-    opacity: 0;
-    transform: translateY(-0.35rem);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.primary-nav-link {
-  position: relative;
-  transition: color 200ms ease, transform 200ms ease;
-}
-
-.primary-nav-link:hover {
-  transform: translateY(-1px);
-}
-
-.primary-nav-link::after {
-  position: absolute;
-  right: 0;
-  bottom: -0.65rem;
-  left: 0;
-  height: 2.5px;
-  background: var(--brand-herbal);
-  content: "";
-  transform: scaleX(0);
-  transform-origin: center;
-  transition: transform 280ms cubic-bezier(0.2, 0.7, 0.2, 1);
-}
-
-.primary-nav-link:hover::after,
-.primary-nav-link[aria-current="page"]::after {
-  transform: scaleX(1);
-}
-
-.mobile-nav-panel {
-  animation: nav-panel-enter 220ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
-}
-
-.mobile-nav-item {
-  animation: nav-item-enter 280ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
-}
-
-.nav-action {
-  transition: transform 180ms ease, background-color 180ms ease;
-}
-
-.nav-action:hover {
-  transform: translateY(-2px);
-}
-
-.nav-action:active {
-  transform: translateY(0) scale(0.94);
-}
-
-.nav-action:focus-visible,
-.primary-nav-link:focus-visible,
-.mobile-nav-item:focus-visible {
-  outline: 2px solid var(--brand-herbal);
-  outline-offset: 3px;
-}
-
-.about-feature-line {
-  transform: scaleX(0);
-  transform-origin: left;
-  transition: transform 700ms cubic-bezier(0.2, 0.7, 0.2, 1);
-}
-
-.about-feature-row[data-visible="true"] .about-feature-line {
-  transform: scaleX(1);
-}
-
-.about-color-surface[data-visible="true"] {
-  background-color: var(--brand-warm-cream);
-}
-
-.use-color-surface[data-visible="true"] {
-  background-color: color-mix(in srgb, var(--brand-golden-sand) 22%, var(--brand-pure-white));
-}
-
-@media (max-height: 560px) {
-  .home-hero {
-    height: calc(100svh - 4rem);
-    min-height: 0;
-  }
-
-  .home-hero-content {
-    align-items: flex-start;
-    padding-top: 0.5rem;
-    padding-bottom: 0.5rem;
-  }
-
-  .home-hero-copy {
-    gap: 0.75rem;
-  }
-
-  .home-hero-copy h1 {
-    font-size: clamp(2.5rem, 7vw, 3.5rem);
-    line-height: 0.98;
-  }
-
-  .home-hero-description {
-    font-size: 0.9rem;
-    line-height: 1.4;
-  }
-
-  .home-hero-proof,
-  .home-hero-footnote {
-    display: none;
-  }
-
-  .home-hero-scroll {
-    bottom: 0.5rem;
-  }
+  background: var(--color-cream-100);
+  color: var(--color-cocoa-950);
+  overflow-x: clip;
 }
 
 ::selection {
-  background: var(--accent);
-  color: #fbf6ec;
+  background: var(--color-spice-500);
+  color: var(--color-cream-50);
 }
 
-/* ─── Scroll-progress gradient bar ─────────────────────────────────── */
-
-.scroll-progress-track {
-  background: transparent;
+:focus-visible {
+  outline: 2px solid var(--color-leaf-600);
+  outline-offset: 3px;
+  border-radius: 4px;
 }
 
-.scroll-progress-bar {
-  background: linear-gradient(90deg,
-      var(--brand-dark-green) 0%,
-      var(--brand-herbal) 30%,
-      var(--brand-fresh-leaf) 65%,
-      var(--brand-golden-sand) 100%);
-  transition: width 80ms linear;
-  border-radius: 0 2px 2px 0;
-  box-shadow:
-    0 0 8px 1px color-mix(in srgb, var(--brand-fresh-leaf) 55%, transparent),
-    0 0 20px 4px color-mix(in srgb, var(--brand-herbal) 30%, transparent);
+/* Subtle paper grain over the whole site, like the kraft pouch. */
+.grain::before {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+  content: "";
+  opacity: 0.05;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
-/* ─── About page — left vertical scroll-progress line ───────────────── */
-
-.about-scroll-line {
-  background: linear-gradient(
-    180deg,
-    var(--brand-dark-green)  0%,
-    var(--brand-herbal)      40%,
-    var(--brand-fresh-leaf)  75%,
-    var(--brand-golden-sand) 100%
-  );
-  transition: height 90ms linear;
-  box-shadow: 2px 0 12px 0 color-mix(in srgb, var(--brand-herbal) 45%, transparent);
+/* ─── Motion system ─────────────────────────────────────────────────────
+   `motion-pending` is set by an inline script before first paint and
+   removed by <MotionProvider> once GSAP has taken over. If JS never runs,
+   a timeout in that script removes it, so content is never stuck hidden. */
+html.motion-pending [data-reveal],
+html.motion-pending [data-reveal-stagger] > *,
+html.motion-pending [data-split] {
+  opacity: 0;
 }
 
-.about-scroll-dot {
-  background: var(--brand-fresh-leaf);
-  box-shadow:
-    0 0 0 3px color-mix(in srgb, var(--brand-fresh-leaf) 25%, transparent),
-    0 0 10px 2px color-mix(in srgb, var(--brand-golden-sand) 55%, transparent);
-  transition: top 90ms linear, opacity 300ms ease;
+/* Header nav underline */
+.nav-link {
+  position: relative;
 }
 
-/* ─── About page — custom keyframes ─────────────────────────────────── */
-
-@keyframes about-float {
-  0%, 100% { transform: translateY(0px) rotate(0deg); }
-  33%       { transform: translateY(-10px) rotate(1.5deg); }
-  66%       { transform: translateY(-5px) rotate(-1deg); }
-}
-
-@keyframes about-pulse-ring {
-  0%   { transform: scale(1);    opacity: 0.6; }
-  100% { transform: scale(1.75); opacity: 0; }
-}
-
-@keyframes about-shimmer {
-  0%   { background-position: -200% center; }
-  100% { background-position:  200% center; }
-}
-
-@keyframes about-spin-slow {
-  from { transform: rotate(0deg); }
-  to   { transform: rotate(360deg); }
-}
-
-@keyframes about-badge-pop {
-  0%   { transform: scale(0.5) rotate(-6deg); opacity: 0; }
-  60%  { transform: scale(1.1) rotate(2deg);  opacity: 1; }
-  100% { transform: scale(1)   rotate(0deg);  opacity: 1; }
-}
-
-@keyframes about-gradient-move {
-  0%   { background-position: 0% 50%; }
-  50%  { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
-.about-float {
-  animation: about-float 6s ease-in-out infinite;
-}
-
-.about-shimmer-text {
-  background: linear-gradient(
-    90deg,
-    var(--brand-dark-green)  0%,
-    var(--brand-herbal)      25%,
-    var(--brand-fresh-leaf)  50%,
-    var(--brand-golden-sand) 75%,
-    var(--brand-dark-green)  100%
-  );
-  background-size: 200% auto;
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  animation: about-shimmer 4s linear infinite;
-}
-
-.about-badge-pop {
-  animation: about-badge-pop 600ms cubic-bezier(0.16, 1, 0.3, 1) both;
-  animation-delay: 400ms;
-}
-
-.about-spin-slow {
-  animation: about-spin-slow 20s linear infinite;
-}
-
-.about-gradient-bg {
-  background: linear-gradient(
-    135deg,
-    var(--brand-dark-green),
-    var(--brand-herbal),
-    var(--brand-dark-green),
-    var(--brand-olive)
-  );
-  background-size: 300% 300%;
-  animation: about-gradient-move 8s ease infinite;
-}
-
-/* step timeline connector line */
-.about-step-line {
+.nav-link::after {
   position: absolute;
-  top: 2.25rem;
-  left: calc(50% + 1.5rem);
-  right: calc(-50% + 1.5rem);
+  right: 0;
+  bottom: -6px;
+  left: 0;
   height: 2px;
-  background: linear-gradient(90deg, var(--brand-herbal), var(--brand-golden-sand));
+  border-radius: 2px;
+  background: var(--color-spice-500);
+  content: "";
   transform: scaleX(0);
-  transform-origin: left;
-  transition: transform 800ms cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 300ms var(--ease-out-expo);
 }
 
-[data-visible="true"] .about-step-line {
+.nav-link:hover::after,
+.nav-link[aria-current="page"]::after {
   transform: scaleX(1);
 }
 
-/* benefit icon ring */
-.about-benefit-icon {
+/* Scroll progress bar under the header */
+.scroll-progress {
+  transform-origin: left;
+  transform: scaleX(var(--progress, 0));
+  background: linear-gradient(90deg, var(--color-leaf-600), var(--color-gold), var(--color-spice-500), var(--color-garlic-500));
+}
+
+/* Mobile menu */
+@keyframes panel-in {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.panel-in {
+  animation: panel-in 260ms var(--ease-out-expo) both;
+}
+
+/* Animated brand gradient used on CTA bands */
+.brand-gradient {
+  background-image: linear-gradient(120deg, var(--color-cocoa-900), var(--color-cocoa-700), var(--color-spice-700), var(--color-garlic-700), var(--color-cocoa-900));
+  background-size: 300% 300%;
+}
+
+/* Brush-stroke label, like the flavour banner on the pack */
+.brush {
   position: relative;
-  transition: box-shadow 300ms ease, transform 300ms ease;
+  isolation: isolate;
 }
 
-.about-benefit-icon:hover {
-  box-shadow: 0 0 0 8px color-mix(in srgb, var(--brand-herbal) 12%, transparent);
-  transform: scale(1.1) translateY(-2px);
+.brush::before {
+  position: absolute;
+  inset: -0.15em -0.45em;
+  z-index: -1;
+  border-radius: 0.6em 0.25em 0.7em 0.3em;
+  background: currentColor;
+  content: "";
+  opacity: 0.14;
+  transform: rotate(-1.5deg);
 }
 
-/* ─── Scroll-reveal transitions ─────────────────────────────────────── */
-
-.reveal {
-  transition:
-    transform 750ms cubic-bezier(0.16, 1, 0.3, 1),
-    opacity 650ms cubic-bezier(0.16, 1, 0.3, 1);
+/* Hide native disclosure marker for custom accordions */
+summary::-webkit-details-marker {
+  display: none;
 }
 
-/* ─── Section entrance shimmer lines ────────────────────────────────── */
-
-@keyframes section-shimmer {
-  0% {
-    opacity: 0;
-    transform: scaleX(0);
-  }
-
-  40% {
-    opacity: 1;
-  }
-
-  100% {
-    opacity: 0.4;
-    transform: scaleX(1);
-  }
+/* SplitText line masks */
+.split-line {
+  overflow: hidden;
+  padding-bottom: 0.08em;
+  margin-bottom: -0.08em;
 }
 
-/* Top accent line that sweeps in when a section with data-visible="true" enters */
-.reveal[data-visible="true"]::before {
-  animation: section-shimmer 900ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-/* ─── Scroll reveals — instant for users who prefer reduced motion ─── */
+/* ─── Reduced motion: everything static ────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
-  .reveal {
-    transition: none !important;
-    transform: none !important;
-    opacity: 1 !important;
+  html {
+    scroll-behavior: auto;
   }
 
-  .primary-nav-link,
-  .primary-nav-link::after,
-  .mobile-nav-panel,
-  .mobile-nav-item {
-    animation: none !important;
-    transition: none !important;
-  }
-
-  .hero-typewriter-visible::after {
-    animation: none !important;
-    opacity: 0;
-  }
-
-  .about-feature-line {
-    transform: scaleX(1);
-    transition: none !important;
-  }
-
-  .about-color-surface,
-  .use-color-surface {
-    transition: none !important;
-  }
-
-  .scroll-progress-bar,
-  .about-scroll-line,
-  .about-scroll-dot {
-    transition: none !important;
-  }
-
-  .about-float,
-  .about-shimmer-text,
-  .about-badge-pop,
-  .about-spin-slow,
-  .about-gradient-bg {
-    animation: none !important;
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }

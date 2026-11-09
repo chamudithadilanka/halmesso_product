@@ -8,6 +8,6 @@ import type { Product } from "./entities";
 export interface ProductRepository {
   list(): Product[];
   bySlug(slug: string): Product | null;
-  featured(limit?: number): Product[];
+  byId(id: string): Product | null;
   related(slug: string, limit?: number): Product[];
 }

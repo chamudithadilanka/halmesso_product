@@ -4,19 +4,18 @@ import {
   createContext,
   useCallback,
   useContext,
-  useEffect,
   useMemo,
   useState,
   type ReactNode,
 } from "react";
 import type { CartLine } from "@/domain/entities";
 import {
+  clampQuantity,
   getDetailedCartLines,
   type DetailedCartLine,
 } from "@/application/cart";
-import { parseJson, useStored, writeStored } from "./local-store";
-
-const CART_KEY = "halmessso-cart";
+import { STORAGE_KEYS } from "./site";
+import { parseJson, readStored, useStored, writeStored } from "./local-store";
 
 type CartContextValue = {
   lines: DetailedCartLine[];
@@ -35,7 +34,7 @@ type CartContextValue = {
 const CartContext = createContext<CartContextValue | null>(null);
 
 function parseLines(raw: string): CartLine[] {
-  const parsed = parseJson<CartLine[]>(raw);
+  const parsed = parseJson<unknown>(raw);
   if (!Array.isArray(parsed)) return [];
   return parsed.filter(
     (line): line is CartLine =>
@@ -45,68 +44,46 @@ function parseLines(raw: string): CartLine[] {
   );
 }
 
-export function CartProvider({ children }: { children: ReactNode }) {
-  const { value: raw, hydrated } = useStored(CART_KEY);
-  const [isOpen, setIsOpen] = useState(false);
+/** Apply an update against the *current* stored cart, not a render-time copy. */
+function updateLines(updater: (current: CartLine[]) => CartLine[]) {
+  const next = updater(parseLines(readStored(STORAGE_KEYS.cart)))
+    .map((line) => ({ ...line, quantity: clampQuantity(line.quantity) }))
+    .filter((line) => line.quantity > 0);
+  writeStored(STORAGE_KEYS.cart, JSON.stringify(next));
+}
 
-  const rawLines = useMemo(() => parseLines(raw), [raw]);
+export function CartProvider({ children }: { children: ReactNode }) {
+  const { value: raw, hydrated } = useStored(STORAGE_KEYS.cart);
+  const [isOpen, setIsOpen] = useState(false);
 
   const openCart = useCallback(() => setIsOpen(true), []);
   const closeCart = useCallback(() => setIsOpen(false), []);
 
-  const setLines = useCallback(
-    (updater: (current: CartLine[]) => CartLine[]) => {
-      writeStored(CART_KEY, JSON.stringify(updater(parseLines(raw))));
-    },
-    [raw],
-  );
+  const addToCart = useCallback((productId: string, quantity = 1) => {
+    updateLines((current) => {
+      const existing = current.find((l) => l.productId === productId);
+      if (!existing) return [...current, { productId, quantity }];
+      return current.map((l) =>
+        l.productId === productId ? { ...l, quantity: l.quantity + quantity } : l,
+      );
+    });
+    setIsOpen(true);
+  }, []);
 
-  const addToCart = useCallback(
-    (productId: string, quantity = 1) => {
-      setLines((current) => {
-        const existing = current.find((l) => l.productId === productId);
-        if (existing) {
-          return current.map((l) =>
-            l.productId === productId
-              ? { ...l, quantity: Math.min(l.quantity + quantity, 99) }
-              : l,
-          );
-        }
-        return [...current, { productId, quantity }];
-      });
-      setIsOpen(true);
-    },
-    [setLines],
-  );
+  const removeFromCart = useCallback((productId: string) => {
+    updateLines((current) => current.filter((l) => l.productId !== productId));
+  }, []);
 
-  const removeFromCart = useCallback(
-    (productId: string) =>
-      setLines((current) => current.filter((l) => l.productId !== productId)),
-    [setLines],
-  );
+  const setQuantity = useCallback((productId: string, quantity: number) => {
+    updateLines((current) =>
+      current.map((l) => (l.productId === productId ? { ...l, quantity } : l)),
+    );
+  }, []);
 
-  const setQuantity = useCallback(
-    (productId: string, quantity: number) =>
-      setLines((current) =>
-        quantity <= 0
-          ? current.filter((l) => l.productId !== productId)
-          : current.map((l) => (l.productId === productId ? { ...l, quantity } : l)),
-      ),
-    [setLines],
-  );
-
-  const clearCart = useCallback(() => writeStored(CART_KEY, "[]"), []);
-
-  // Lock body scroll while the drawer is open (external system → fine in an effect).
-  useEffect(() => {
-    document.body.style.overflow = isOpen ? "hidden" : "";
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, [isOpen]);
+  const clearCart = useCallback(() => writeStored(STORAGE_KEYS.cart, "[]"), []);
 
   const value = useMemo<CartContextValue>(() => {
-    const lines = getDetailedCartLines(rawLines);
+    const lines = getDetailedCartLines(parseLines(raw));
     return {
       lines,
       itemCount: lines.reduce((sum, l) => sum + l.quantity, 0),
@@ -120,17 +97,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       setQuantity,
       clearCart,
     };
-  }, [
-    rawLines,
-    hydrated,
-    isOpen,
-    openCart,
-    closeCart,
-    addToCart,
-    removeFromCart,
-    setQuantity,
-    clearCart,
-  ]);
+  }, [raw, hydrated, isOpen, openCart, closeCart, addToCart, removeFromCart, setQuantity, clearCart]);
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 }

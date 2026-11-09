@@ -1,6 +1,8 @@
-# Halmessso — Everyday goods, well made
+# Haalmasso+ — Small Fish. Strong Health.
 
-A clean, demo e-commerce storefront built with Next.js 16 (App Router, Turbopack), React 19, TypeScript and Tailwind CSS v4. No external image hosts, no mock APIs — everything is local and self-contained.
+Storefront for Haalmasso+ natural nutritional seasoning powder (Masala & Garlic), made from Sri Lankan sprats.
+Built with Next.js 16 (App Router, Cache Components, Turbopack), React 19, TypeScript, Tailwind CSS v4,
+**three.js** (3D hero) and **GSAP + ScrollTrigger/SplitText** (scroll animations).
 
 ## Run it
 
@@ -11,42 +13,42 @@ npm run build   # production build
 npm run lint
 ```
 
-## Screens
+Set `NEXT_PUBLIC_SITE_URL` in production so canonical, Open Graph, sitemap and JSON-LD URLs are absolute.
+
+## Pages
 
 | Route | Screen |
 | --- | --- |
-| `/` | Home — hero, featured products, categories, value props, testimonial |
-| `/products` | Catalog — category filter tabs + sort + product grid |
-| `/products/[slug]` | Product detail — gallery, features, qty + add to cart, related items |
-| `/cart` | Cart page — line items, promo code (`HALMESSO10`, 10% off), totals |
-| `/checkout` | Checkout — contact, shipping, payment (demo), order confirmation |
-| `/login`, `/signup` | Demo auth (stored in localStorage) |
-| `/account` | Profile card + last placed order |
+| `/` | 3D hero (pouch flips Masala → Garlic on scroll), ticker, flavours, benefits, horizontal "sea to spoon" steps, uses, CTA |
+| `/products` | Both flavours with 3D-tilt cards |
+| `/products/[slug]` | Product detail, quantity + add to cart, sticky mobile buy bar, how to use / storage / delivery, cross-sell |
+| `/about` | Story, benefits, process, FAQ |
+| `/cart`, `/checkout` | Promo code (`HAALMASSO10`, 10% off), cash on delivery or card (demo), Sri Lankan phone validation |
+| `/login`, `/signup`, `/account` | Demo auth + order history (localStorage) |
+| `/contact`, `/shipping`, `/privacy` | Support pages |
 
-Cart drawer slides in from the header with a free-shipping progress bar.
+## Motion system
 
-## Clean architecture
+- `components/home/hero-scene.ts` — pure three.js scene (pouch with real pack textures, sprat school, spice dust, leaves). Lazy-loaded; static image fallback when WebGL is unavailable.
+- `components/motion/scroll-motion.tsx` — declarative GSAP animations. Add attributes to any element (server components included):
+  `data-reveal="up|down|left|right|zoom|fade"`, `data-reveal-delay`, `data-reveal-stagger`, `data-split`, `data-parallax="0.3"`.
+  Render `<ScrollMotion />` as the **last child of a page** so it runs after that page has hydrated.
+- Everything respects `prefers-reduced-motion`.
 
-Dependencies point inward — UI never imports the data layer directly:
+## Architecture
 
 ```
 src/
-  domain/        entities.ts, product-repository.ts   # types + repository interface (no framework imports)
-  data/          catalog.ts, static-product-repository.ts  # static catalog adapter
-  application/   catalog.ts, cart.ts                       # use-cases: list/get products, cart math, totals
-  lib/           local-store.ts, cart.tsx, auth.tsx, format.ts  # client state (useSyncExternalStore + localStorage)
-  components/    header, footer, product-card, cart-drawer, ...   # presentation
-  app/           routes (server components + small client islands)
+  domain/       entities + repository interface (no framework code)
+  data/         static catalog (the two products) + repository adapter
+  application/  use-cases: catalog lookups, cart math, promo codes, totals
+  lib/          client state (cart, auth, orders on a useSyncExternalStore localStorage store), site config, gsap
+  content/      shared brand copy (benefits, process, FAQ)
+  components/   UI + motion
+  app/          routes
 ```
 
-- **domain** — `Product`, `CartLine`, `ProductRepository` interface. Zero dependencies.
-- **data** — `StaticProductRepository` implements the interface from an in-memory catalog. Swap it for an API/DB adapter without touching UI.
-- **application** — single entry points (`listProducts`, `getProductBySlug`, `computeTotals`, `getDetailedCartLines`) that the UI consumes.
-- **lib** — React context for cart/session, backed by a shared `useSyncExternalStore` localStorage helper (SSR-safe, no hydration mismatch).
-- **presentation** — server components by default; client islands only where interactivity is needed.
+## Demo limitations
 
-## Demo notes
-
-- Payments are not processed — any card details work on `/checkout`.
-- Promo code `HALMESSO10` applies 10% off; free shipping over $75.
-- Cart and demo session persist in `localStorage`.
+Payments, accounts, the contact form and newsletter are front-end only — nothing is sent to a server.
+Replace with real services before launch.
