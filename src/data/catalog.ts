@@ -17,8 +17,8 @@ export const CATALOG: Product[] = [
     tagline: "A warm masala lift for every meal",
     description:
       "Natural nutritional seasoning powder made from Sri Lankan sprats, with a warming masala flavour. One spoon adds a savoury, nourishing boost to rice and curry, kottu, noodles and the family favourites you already cook.",
-    price: 550,
-    netWeight: "50 g",
+    price: 500,
+    netWeight: "100 g",
     image: masalaImage,
     imageAlt:
       "Haalmasso+ Masala Flavour pouch with a bowl of seasoning powder, dried sprats and red chillies",
@@ -42,8 +42,8 @@ export const CATALOG: Product[] = [
     tagline: "Garlic goodness in every sprinkle",
     description:
       "Natural nutritional seasoning powder made from Sri Lankan sprats, with a savoury garlic flavour. Stir it through noodles, soups and rice for a simple, wholesome boost the whole family will enjoy.",
-    price: 550,
-    netWeight: "50 g",
+    price: 500,
+    netWeight: "100 g",
     image: garlicImage,
     imageAlt:
       "Haalmasso+ Garlic Flavour pouch with a bowl of seasoning powder, dried sprats and garlic bulbs",
