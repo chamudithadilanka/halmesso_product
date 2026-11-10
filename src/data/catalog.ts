@@ -17,7 +17,7 @@ export const CATALOG: Product[] = [
     tagline: "A warm masala lift for every meal",
     description:
       "Natural nutritional seasoning powder made from Sri Lankan sprats, with a warming masala flavour. One spoon adds a savoury, nourishing boost to rice and curry, kottu, noodles and the family favourites you already cook.",
-    price: 650,
+    price: 550,
     netWeight: "50 g",
     image: masalaImage,
     imageAlt:
@@ -42,7 +42,7 @@ export const CATALOG: Product[] = [
     tagline: "Garlic goodness in every sprinkle",
     description:
       "Natural nutritional seasoning powder made from Sri Lankan sprats, with a savoury garlic flavour. Stir it through noodles, soups and rice for a simple, wholesome boost the whole family will enjoy.",
-    price: 650,
+    price: 550,
     netWeight: "50 g",
     image: garlicImage,
     imageAlt:
